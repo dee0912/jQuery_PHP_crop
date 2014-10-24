@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>图片剪裁</title>
+<link href="css/style.css">
+<link rel="stylesheet" href="css/style.css">
+<script src="js/jquery-1.8.3.min.js"></script>
+</head>
+<body>
+<div id="piccon">
+	<div id="mask"></div>
+	<img id="pic" src="images/pic2.jpg"><br />
+</div>
+起始坐标:<p id="site"></p>
+</body>
+<script>
+
+function loadpic(){
+
+	var w = $("#pic").width();
+	var h = $("#pic").height();
+
+	//上传的图片和外围图片框宽高进行比较
+	if(w > parseFloat($("#pic").height())){
+	
+		$("#pic").width(parseFloat($("#piccon").css("width")));
+		
+		//垂直居中
+		$("#pic").css({"position":"absolute","top":"50%","left":0,"margin-top":-$("#pic").height()/2});
+
+	}else if(w < parseFloat($("#pic").height())){
+	
+		$("#pic").height(parseFloat($("#piccon").css("height")));
+
+		//水平居中
+		$("#pic").css({"position":"absolute","top":0,"left":"50%","margin-left":-$("#pic").width()/2});
+	}else{
+	
+		//正方形
+		$("#pic").width(parseFloat($("#piccon").css("width")));
+		$("#pic").height(parseFloat($("#piccon").css("height")));
+	}
+
+	//加载图片上方的遮罩
+	$("#mask").css({
+		"opacity":0,
+		"width":$("#pic").width(),
+		"height":$("#pic").height(),
+		"top":$("#pic").css("top"),
+		"left":$("#pic").css("left"),
+		"margin-top":$("#pic").css("margin-top"),
+		"margin-left":$("#pic").css("margin-left")
+	});
+	
+}
+
+//因为jquery的ready()事件在图片加载之前就已经执行，所以获取图片的宽和高不能在ready()事件中
+window.onload = loadpic;
+
+$(function(){
+
+	//鼠标点击遮罩时，改变遮罩透明度
+	$("#mask").mousedown(function(e){
+
+		if(Math.ceil($(this).css("opacity")) == 0){
+
+			$(this).css({
+				"background":"#000",
+				"opacity":0.3
+			});
+		}else{
+		
+			$(this).css({"opacity":0});
+		}
+
+		e.stopPropagation(); //阻止事件冒泡
+
+		//记录此时鼠标坐标
+		var pointX = e.pageX;
+		var pointY = e.pageY;
+	});
+
+	$(document).mousedown(function(){
+
+		$("#mask").css("opacity",0);
+	});
+});
+
+
+</script>
+</html>

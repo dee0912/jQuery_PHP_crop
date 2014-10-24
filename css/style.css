@@ -1,0 +1,29 @@
+*{ margin:0; padding:0}
+
+/* 外层图片框 */
+#piccon{ 
+
+	width:304px; 
+	height:304px; 
+	margin:80px auto auto 250px;
+	border:1px dashed #ccc;
+	position:relative;
+}
+
+/* 遮罩层 */
+#mask{
+
+	position:absolute;
+
+	/* 鼠标移至遮罩上，改变指针形状 */
+	cursor:url('../images/crop.ico'),auto;
+	display:hidden;
+	z-index:1;
+}
+
+/* 图片 */
+#pic{
+
+	z-index:0;
+}
+
