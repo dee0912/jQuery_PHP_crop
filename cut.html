@@ -8,11 +8,17 @@
 <script src="js/jquery-1.8.3.min.js"></script>
 </head>
 <body>
-<div id="piccon">
-	<div id="mask"></div>
-	<img id="pic" src="images/pic2.jpg"><br />
-</div>
-起始坐标:<p id="site"></p>
+
+	<div id="piccon">
+		<div id="area"></div>
+		<div id="mask"></div>
+		<img id="pic" src="images/pic3.jpg"><br />
+	</div>
+	<div id="thumb"></div>
+	起始坐标:<span id="start"><span id="startX"></span> <span id="startY"></span></span><br />
+	当前坐标:<span id="nowtime"><span id="nowtimeX"></span> <span id="nowtimeY"></span></span><br />
+	结束坐标:<span id="end"><span id="endX"></span> <span id="endY"></span></span>
+<p id="test"></p>
 </body>
 <script>
 
@@ -58,35 +64,145 @@ function loadpic(){
 //因为jquery的ready()事件在图片加载之前就已经执行，所以获取图片的宽和高不能在ready()事件中
 window.onload = loadpic;
 
-$(function(){
 
-	//鼠标点击遮罩时，改变遮罩透明度
-	$("#mask").mousedown(function(e){
+//鼠标点击遮罩时，改变遮罩透明度
+$("#mask").mousedown(function(e){
 
-		if(Math.ceil($(this).css("opacity")) == 0){
+	if($(this).css("opacity") == 0){
 
-			$(this).css({
-				"background":"#000",
-				"opacity":0.3
-			});
-		}else{
+		$(this).css({"opacity":0.3});
+	}else{
+	
+		$(this).css({"opacity":0});
+	}
+
+	e.stopPropagation(); //阻止事件冒泡
+
+	//记录此时鼠标坐标
+	var pointX = e.pageX;
+	var pointY = e.pageY;
+
+	$("#startX").text(pointX);
+	$("#startY").text(pointY);
+
+	//点击时，选区消失
+	$("#area").html("");
+	$("#area").css({"width":0,"height":0,"border":0});
+});
+
+//鼠标按住移动，记录坐标
+$("#mask").mousemove(function(e){
+
+	//记录此时鼠标坐标
+	var pointX = e.pageX;
+	var pointY = e.pageY;
+
+	$("#nowtimeX").text(pointX);
+	$("#nowtimeY").text(pointY);
+$("#test").text(e.which);	
+	if(e.which == 1){
 		
-			$(this).css({"opacity":0});
-		}
-
-		e.stopPropagation(); //阻止事件冒泡
+		showArea(parseFloat($("#nowtimeX").text()),parseFloat($("#nowtimeY").text()));
 
 		//记录此时鼠标坐标
 		var pointX = e.pageX;
 		var pointY = e.pageY;
-	});
 
-	$(document).mousedown(function(){
+		$("#endX").text(pointX);
+		$("#endY").text(pointY);
 
-		$("#mask").css("opacity",0);
-	});
+	}
 });
 
+//点击遮罩(弹起)，遮罩透明
+$("#mask").mouseup(function(){
+
+	$("#mask").css("opacity",0);
+
+})
+
+//点击页面，遮罩消失    
+$(document).mousedown(function(){
+
+	if($("#mask").length > 0){
+
+		$("#mask").css("opacity",0);
+		$("#area").html("");
+		$("#area").css({"width":0,"height":0,"border":0});
+	}
+})
+
+//显示选区
+function showArea(x,y){
+	
+	//选区
+	if( parseFloat($("#startX").text()) > x ){
+	
+		//选区的宽
+		$areaW = parseFloat($("#startX").text()) - x;
+
+		//选区的left
+		$areaL = x - parseFloat($("#piccon").css("margin-left"));
+		
+	}else{
+	
+		//选区的宽
+		$areaW = x - parseFloat($("#startX").text());
+
+		//选区的left
+		$areaL = parseFloat($("#startX").text()) - parseFloat($("#piccon").css("margin-left"));
+	}
+
+	if( parseFloat($("#startY").text()) > y ){
+		
+		//选取的高
+		$areaH = parseFloat($("#startY").text()) - y;
+
+		//选区的top
+		$areaT = y - parseFloat($("#piccon").css("margin-top"));
+	}else{
+
+		//选取的高		
+		$areaH = y - parseFloat($("#startY").text());
+
+		//选区的top
+		$areaT = parseFloat($("#startY").text()) - parseFloat($("#piccon").css("margin-top"));
+	}
+	
+	//显示选区
+	$("#area").css({
+		"top":$areaT-1, // 1是border的宽度
+		"left":$areaL-1,// 1是border的宽度
+		"width":$areaW,
+		"height":$areaH,
+		"opacity":50,
+		//边框
+		"border":"1px dashed #000"
+	});
+
+	$reImg = $("<img src=\""+$("#pic").attr("src")+"\">");
+	$reImg.css({
+		"position":"absolute",
+		"top":-$areaT,
+		"left":-$areaL,
+		"width":$("#pic").width(),
+		"height":$("#pic").height(),
+		"z-index":4
+	})
+
+	$("#area").html($reImg);
+}
+
+//移动选区
+$("#area").live('mousemove',function(){
+
+	$(this).css("cursor","move");
+});
+
+$("#area").live('mousedown',function(e){
+
+	e.stopPropagation(); //阻止事件冒泡
+});
 
 </script>
 </html>
